@@ -24,14 +24,4 @@
 
 extern int parse_date(const char *date, char *result, int maxlen);
 
-enum date_mode {
-	DATE_NORMAL = 0,
-	DATE_RELATIVE,
-	DATE_SHORT,
-	DATE_LOCAL,
-	DATE_ISO8601,
-	DATE_RFC2822,
-	DATE_RAW
-};
-
 #endif

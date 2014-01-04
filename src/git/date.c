@@ -17,6 +17,16 @@
 #define Q_(a, b, c) ((c) == 1 ? (a) : (b))
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
+enum date_mode {
+	DATE_NORMAL = 0,
+	DATE_RELATIVE,
+	DATE_SHORT,
+	DATE_LOCAL,
+	DATE_ISO8601,
+	DATE_RFC2822,
+	DATE_RAW
+};
+
 /*
  * This is like mktime, but without normalization of tm_wday and tm_yday.
  */
