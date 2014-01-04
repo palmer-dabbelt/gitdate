@@ -7,7 +7,7 @@ COMPILEOPTS += -Wextra
 COMPILEOPTS += -Werror
 COMPILEOPTS += -ansi
 COMPILEOPTS += -pedantic
-COMPILEOPTS += -Wunused-parameter=none
+COMPILEOPTS += -Wno-unused-parameter
 
 LANGUAGES   += c++
 COMPILEOPTS += -Wall
@@ -15,7 +15,7 @@ COMPILEOPTS += -Wextra
 COMPILEOPTS += -Werror
 COMPILEOPTS += -ansi
 COMPILEOPTS += -pedantic
-COMPILEOPTS += -Wunused-parameter=none
+COMPILEOPTS += -Wno-unused-parameter
 
 LANGUAGES   += pkgconfig
 LINKOPTS    += -Sobj/proc/version-pc.sed
