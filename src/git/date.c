@@ -6,12 +6,22 @@
 
 #define _BSD_SOURCE
 
+#include <gitdate.h>
 #include "date.h"
-#include "strbuf.h"
 #include <sys/time.h>
 #include <ctype.h>
 #include <limits.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <time.h>
+
+#ifdef __cplusplus
+#define GITDATE gitdate::
+#else
+#define GITDATE
+#endif
 
 #define _(arg) arg
 #define Q_(a, b, c) ((c) == 1 ? (a) : (b))
@@ -26,6 +36,16 @@ enum date_mode {
 	DATE_RFC2822,
 	DATE_RAW
 };
+
+static __inline__ void die(const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+
+    abort();
+}
 
 /*
  * This is like mktime, but without normalization of tm_wday and tm_yday.
@@ -75,7 +95,7 @@ static time_t gm_time_t(unsigned long time, int tz)
  * thing, which means that tz -0100 is passed in as the integer -100,
  * even though it means "sixty minutes off"
  */
-static struct tm *time_to_tm(unsigned long time, int tz)
+static __inline__ struct tm *time_to_tm(unsigned long time, int tz)
 {
 	time_t t = gm_time_t(time, tz);
 	return gmtime(&t);
@@ -85,7 +105,7 @@ static struct tm *time_to_tm(unsigned long time, int tz)
  * What value of "tz" was in effect back then at "time" in the
  * local timezone?
  */
-static int local_tzoffset(unsigned long time)
+static __inline__ int local_tzoffset(unsigned long time)
 {
 	time_t t, t_local;
 	struct tm tm;
@@ -105,135 +125,6 @@ static int local_tzoffset(unsigned long time)
 	offset /= 60; /* in minutes */
 	offset = (offset % 60) + ((offset / 60) * 100);
 	return offset * eastwest;
-}
-
-void show_date_relative(long time, int tz,
-			       const struct timeval *now,
-			       struct strbuf *timebuf)
-{
-	unsigned long diff;
-	if (now->tv_sec < time) {
-		strbuf_addstr(timebuf, _("in the future"));
-		return;
-	}
-	diff = now->tv_sec - time;
-	if (diff < 90) {
-		strbuf_addf(timebuf,
-			 Q_("%lu second ago", "%lu seconds ago", diff), diff);
-		return;
-	}
-	/* Turn it into minutes */
-	diff = (diff + 30) / 60;
-	if (diff < 90) {
-		strbuf_addf(timebuf,
-			 Q_("%lu minute ago", "%lu minutes ago", diff), diff);
-		return;
-	}
-	/* Turn it into hours */
-	diff = (diff + 30) / 60;
-	if (diff < 36) {
-		strbuf_addf(timebuf,
-			 Q_("%lu hour ago", "%lu hours ago", diff), diff);
-		return;
-	}
-	/* We deal with number of days from here on */
-	diff = (diff + 12) / 24;
-	if (diff < 14) {
-		strbuf_addf(timebuf,
-			 Q_("%lu day ago", "%lu days ago", diff), diff);
-		return;
-	}
-	/* Say weeks for the past 10 weeks or so */
-	if (diff < 70) {
-		strbuf_addf(timebuf,
-			 Q_("%lu week ago", "%lu weeks ago", (diff + 3) / 7),
-			 (diff + 3) / 7);
-		return;
-	}
-	/* Say months for the past 12 months or so */
-	if (diff < 365) {
-		strbuf_addf(timebuf,
-			 Q_("%lu month ago", "%lu months ago", (diff + 15) / 30),
-			 (diff + 15) / 30);
-		return;
-	}
-	/* Give years and months for 5 years or so */
-	if (diff < 1825) {
-		unsigned long totalmonths = (diff * 12 * 2 + 365) / (365 * 2);
-		unsigned long years = totalmonths / 12;
-		unsigned long months = totalmonths % 12;
-		if (months) {
-			struct strbuf sb = STRBUF_INIT;
-			strbuf_addf(&sb, Q_("%lu year", "%lu years", years), years);
-			/* TRANSLATORS: "%s" is "<n> years" */
-			strbuf_addf(timebuf,
-				 Q_("%s, %lu month ago", "%s, %lu months ago", months),
-				 sb.buf, months);
-			strbuf_release(&sb);
-		} else
-			strbuf_addf(timebuf,
-				 Q_("%lu year ago", "%lu years ago", years), years);
-		return;
-	}
-	/* Otherwise, just years. Centuries is probably overkill. */
-	strbuf_addf(timebuf,
-		 Q_("%lu year ago", "%lu years ago", (diff + 183) / 365),
-		 (diff + 183) / 365);
-}
-
-const char *show_date(unsigned long time, int tz, enum date_mode mode)
-{
-	struct tm *tm;
-	static struct strbuf timebuf = STRBUF_INIT;
-
-	if (mode == DATE_RAW) {
-		strbuf_reset(&timebuf);
-		strbuf_addf(&timebuf, "%lu %+05d", time, tz);
-		return timebuf.buf;
-	}
-
-	if (mode == DATE_RELATIVE) {
-		struct timeval now;
-
-		strbuf_reset(&timebuf);
-		gettimeofday(&now, NULL);
-		show_date_relative(time, tz, &now, &timebuf);
-		return timebuf.buf;
-	}
-
-	if (mode == DATE_LOCAL)
-		tz = local_tzoffset(time);
-
-	tm = time_to_tm(time, tz);
-	if (!tm)
-		return NULL;
-
-	strbuf_reset(&timebuf);
-	if (mode == DATE_SHORT)
-		strbuf_addf(&timebuf, "%04d-%02d-%02d", tm->tm_year + 1900,
-				tm->tm_mon + 1, tm->tm_mday);
-	else if (mode == DATE_ISO8601)
-		strbuf_addf(&timebuf, "%04d-%02d-%02d %02d:%02d:%02d %+05d",
-				tm->tm_year + 1900,
-				tm->tm_mon + 1,
-				tm->tm_mday,
-				tm->tm_hour, tm->tm_min, tm->tm_sec,
-				tz);
-	else if (mode == DATE_RFC2822)
-		strbuf_addf(&timebuf, "%.3s, %d %.3s %d %02d:%02d:%02d %+05d",
-			weekday_names[tm->tm_wday], tm->tm_mday,
-			month_names[tm->tm_mon], tm->tm_year + 1900,
-			tm->tm_hour, tm->tm_min, tm->tm_sec, tz);
-	else
-		strbuf_addf(&timebuf, "%.3s %.3s %d %02d:%02d:%02d %d%c%+05d",
-				weekday_names[tm->tm_wday],
-				month_names[tm->tm_mon],
-				tm->tm_mday,
-				tm->tm_hour, tm->tm_min, tm->tm_sec,
-				tm->tm_year + 1900,
-				(mode == DATE_LOCAL) ? 0 : ' ',
-				tz);
-	return timebuf.buf;
 }
 
 /*
@@ -732,7 +623,7 @@ int parse_date_basic(const char *date, unsigned long *timestamp, int *offset)
 	return 0; /* success */
 }
 
-int parse_date(const char *date, char *result, int maxlen)
+int GITDATE parse_date(const char *date, char *result, int maxlen)
 {
 	unsigned long timestamp;
 	int offset;
@@ -882,7 +773,7 @@ static const struct special {
 	{ "AM", date_am },
 	{ "never", date_never },
 	{ "now", date_now },
-	{ NULL }
+	{ NULL, NULL }
 };
 
 static const char *number_name[] = {
@@ -899,7 +790,7 @@ static const struct typelen {
 	{ "hours", 60*60 },
 	{ "days", 24*60*60 },
 	{ "weeks", 7*24*60*60 },
-	{ NULL }
+	{ NULL, -1 }
 };
 
 static const char *approxidate_alpha(const char *date, struct tm *tm, struct tm *now, int *num, int *touched)
@@ -1098,7 +989,7 @@ unsigned long approxidate_relative(const char *date, const struct timeval *tv)
 	return approxidate_str(date, tv, &errors);
 }
 
-unsigned long approxidate_careful(const char *date, int *error_ret)
+unsigned long GITDATE approxidate_careful(const char *date, int *error_ret)
 {
 	struct timeval tv;
 	unsigned long timestamp;

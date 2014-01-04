@@ -22,6 +22,4 @@
 #ifndef DATE_H
 #define DATE_H
 
-extern int parse_date(const char *date, char *result, int maxlen);
-
 #endif

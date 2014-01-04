@@ -20,3 +20,5 @@
  */
 
 #include <gitdate.h>
+
+#include "git/date.h"

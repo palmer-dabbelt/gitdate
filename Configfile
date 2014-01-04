@@ -1,22 +1,6 @@
 ##############################################################################
-# Boilerplate                                                                #
+# Versioning Support                                                         #
 ##############################################################################
-LANGUAGES   += c
-COMPILEOPTS += -Wall
-COMPILEOPTS += -Wextra
-COMPILEOPTS += -Werror
-COMPILEOPTS += -ansi
-COMPILEOPTS += -pedantic
-COMPILEOPTS += -Wno-unused-parameter
-
-LANGUAGES   += c++
-COMPILEOPTS += -Wall
-COMPILEOPTS += -Wextra
-COMPILEOPTS += -Werror
-COMPILEOPTS += -ansi
-COMPILEOPTS += -pedantic
-COMPILEOPTS += -Wno-unused-parameter
-
 LANGUAGES   += pkgconfig
 LINKOPTS    += -Sobj/proc/version-pc.sed
 
@@ -31,6 +15,14 @@ HEADERS     += gitdate.h
 ##############################################################################
 # C Git Date Library                                                         #
 ##############################################################################
+LANGUAGES   += c
+COMPILEOPTS += -Wall
+COMPILEOPTS += -Wextra
+COMPILEOPTS += -Werror
+COMPILEOPTS += -ansi
+COMPILEOPTS += -pedantic
+COMPILEOPTS += -Wno-unused-parameter
+
 LIBRARIES   += libgitdate.so
 SOURCES     += gitdate.c
 
@@ -40,9 +32,16 @@ SOURCES     += gitdate.pc
 ##############################################################################
 # C++ Git Date Library                                                       #
 ##############################################################################
+LANGUAGES   += c++
+COMPILEOPTS += -Wall
+COMPILEOPTS += -Wextra
+COMPILEOPTS += -Werror
+COMPILEOPTS += -ansi
+COMPILEOPTS += -pedantic
+COMPILEOPTS += -Wno-unused-parameter
+
 LIBRARIES   += libgitdate++.so
 SOURCES     += gitdate.c++
-SOURCES     += gitdate.c
 
 LIBRARIES   += pkgconfig/gitdate++.pc
 SOURCES     += gitdate++.pc
