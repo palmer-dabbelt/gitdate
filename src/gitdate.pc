@@ -1,0 +1,11 @@
+prefix=@@pconfigure_prefix@@
+exec_prefix=@@pconfigure_prefix@@
+libdir=${prefix}/@@pconfigure_libdir@@
+includedir=${prefix}/@@pconfigure_hdrdir@@
+
+Name: gitdate
+Description: A C date parsing library
+Version: @@gitdate_version@@
+Libs: -Wl,-rpath,${libdir} -L${libdir} -lgitdate
+Cflags: -I${includedir} 
+URL: http://dabbelt.com/~palmer/software/gitdate/
