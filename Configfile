@@ -26,6 +26,14 @@ COMPILEOPTS += -Wno-unused-parameter
 LIBRARIES   += libgitdate.so
 SOURCES     += gitdate.c
 
+TESTS       += parse_date_simple
+DEPLIBS     += gitdate
+SOURCES     += parse_date_simple.c
+
+TESTS       += approxidate_careful_simple
+DEPLIBS     += gitdate
+SOURCES     += approxidate_careful_simple.c
+
 LIBRARIES   += pkgconfig/gitdate.pc
 SOURCES     += gitdate.pc
 
@@ -42,6 +50,14 @@ COMPILEOPTS += -Wno-unused-parameter
 
 LIBRARIES   += libgitdate++.so
 SOURCES     += gitdate.c++
+
+TESTS       += parse_date_simple
+DEPLIBS     += gitdate++
+SOURCES     += parse_date_simple.c++
+
+TESTS       += approxidate_careful_simple
+DEPLIBS     += gitdate++
+SOURCES     += approxidate_careful_simple.c++
 
 LIBRARIES   += pkgconfig/gitdate++.pc
 SOURCES     += gitdate++.pc
