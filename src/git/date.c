@@ -4,7 +4,18 @@
  * Copyright (C) Linus Torvalds, 2005
  */
 
-#include "cache.h"
+#define _BSD_SOURCE
+
+#include "date.h"
+#include "strbuf.h"
+#include <sys/time.h>
+#include <ctype.h>
+#include <limits.h>
+#include <time.h>
+
+#define _(arg) arg
+#define Q_(a, b, c) ((c) == 1 ? (a) : (b))
+#define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
 /*
  * This is like mktime, but without normalization of tm_wday and tm_yday.
@@ -86,7 +97,7 @@ static int local_tzoffset(unsigned long time)
 	return offset * eastwest;
 }
 
-void show_date_relative(unsigned long time, int tz,
+void show_date_relative(long time, int tz,
 			       const struct timeval *now,
 			       struct strbuf *timebuf)
 {
@@ -304,7 +315,7 @@ static int skip_alpha(const char *date)
 */
 static int match_alpha(const char *date, struct tm *tm, int *offset)
 {
-	int i;
+	size_t i;
 
 	for (i = 0; i < 12; i++) {
 		int match = match_string(date, month_names[i]);
@@ -323,7 +334,7 @@ static int match_alpha(const char *date, struct tm *tm, int *offset)
 	}
 
 	for (i = 0; i < ARRAY_SIZE(timezone_names); i++) {
-		int match = match_string(date, timezone_names[i].name);
+		size_t match = match_string(date, timezone_names[i].name);
 		if (match >= 3 || match == strlen(timezone_names[i].name)) {
 			int off = timezone_names[i].offset;
 
@@ -459,7 +470,7 @@ static int match_multi_number(unsigned long num, char c, const char *date, char 
  * We just do a binary 'and' to see if the sign bit
  * is set in all the values.
  */
-static inline int nodate(struct tm *tm)
+static __inline__ int nodate(struct tm *tm)
 {
 	return (tm->tm_year &
 		tm->tm_mon &
@@ -703,7 +714,7 @@ int parse_date_basic(const char *date, unsigned long *timestamp, int *offset)
 		}
 	}
 
-	if (*timestamp == -1)
+	if (*timestamp == -1UL)
 		return -1;
 
 	if (!tm_gmt)
@@ -740,6 +751,9 @@ enum date_mode parse_date_format(const char *format)
 		return DATE_RAW;
 	else
 		die("unknown date format %s", format);
+
+        /* We'll never reach here... */
+        return DATE_RAW;
 }
 
 void datestamp(char *buf, int bufsize)
