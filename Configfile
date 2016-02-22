@@ -28,10 +28,12 @@ SOURCES     += gitdate.c
 
 TESTS       += parse_date_simple
 DEPLIBS     += gitdate
+LINKOPTS    += -lrt
 SOURCES     += parse_date_simple.c
 
 TESTS       += approxidate_careful_simple
 DEPLIBS     += gitdate
+LINKOPTS    += -lrt
 SOURCES     += approxidate_careful_simple.c
 
 LIBRARIES   += pkgconfig/gitdate.pc
@@ -53,10 +55,12 @@ SOURCES     += gitdate.c++
 
 TESTS       += parse_date_simple
 DEPLIBS     += gitdate++
+LINKOPTS    += -lrt
 SOURCES     += parse_date_simple.c++
 
 TESTS       += approxidate_careful_simple
 DEPLIBS     += gitdate++
+LINKOPTS    += -lrt
 SOURCES     += approxidate_careful_simple.c++
 
 LIBRARIES   += pkgconfig/gitdate++.pc
