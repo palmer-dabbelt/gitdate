@@ -22,6 +22,8 @@ COMPILEOPTS += -Werror
 COMPILEOPTS += -ansi
 COMPILEOPTS += -pedantic
 COMPILEOPTS += -Wno-unused-parameter
+COMPILEOPTS += -Wno-unused-function
+COMPILEOPTS += -Wno-empty-body
 
 LIBRARIES   += libgitdate.so
 SOURCES     += gitdate.c
@@ -49,6 +51,8 @@ COMPILEOPTS += -Werror
 COMPILEOPTS += -ansi
 COMPILEOPTS += -pedantic
 COMPILEOPTS += -Wno-unused-parameter
+COMPILEOPTS += -Wno-unused-function
+COMPILEOPTS += -Wno-empty-body
 
 LIBRARIES   += libgitdate++.so
 SOURCES     += gitdate.c++
