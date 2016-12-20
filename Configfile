@@ -7,10 +7,13 @@ LINKOPTS    += -Sobj/proc/version-pc.sed
 GENERATE    += version.h
 GENERATE    += version-pc.sed
 
+LANGUAGES   += h
+
 ##############################################################################
 # Shared Code                                                                #
 ##############################################################################
 HEADERS     += gitdate.h
+SOURCES     += gitdate.h
 
 ##############################################################################
 # C Git Date Library                                                         #
